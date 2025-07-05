@@ -7,10 +7,10 @@ import {
   QueryCommand 
 } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, TABLE_NAME } from '../config/dynamodb';
-import { Customer, CreateCustomerRequest } from '../types';
+import { Customer, CreateCustomerRequest, customerFieldsAndValidations } from '../types';
 import { HTTP_STATUS_CODES, Response } from '../types/http.interface';
 import { CustomerFactory } from '../factories/customer.factory';
-import { validateCreateCustomer } from '../utils';
+import { validateData } from '../utils';
 import { ValidationError } from '../utils/errors.utils';
 
 export class CustomerService {
@@ -22,7 +22,7 @@ export class CustomerService {
 
   async createCustomer(customerData: CreateCustomerRequest): Promise<Response<Customer>> {
     try {
-      validateCreateCustomer(customerData);
+      validateData(customerData, customerFieldsAndValidations);
       
       const customer = this.factory.buildCustomer(customerData);
 

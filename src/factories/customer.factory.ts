@@ -71,6 +71,21 @@ export class CustomerFactory {
   }
 
   private generateId(): string {
-    return `customer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now().toString(36);
+    const randomPart = Math.random().toString(36).substring(2, 15);
+    const cryptoPart = this.generateCryptoString(8);
+    return `${timestamp}_${randomPart}_${cryptoPart}`;
+  }
+
+  private generateCryptoString(length: number): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(array[i] % chars.length);
+    }
+    return result;
   }
 } 

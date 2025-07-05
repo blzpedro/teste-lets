@@ -5,9 +5,7 @@ import { HTTP_STATUS_CODES, CreateCustomerRequest } from '../types';
 
 const customerService = new CustomerService();
 
-export const getCustomersHandler = async (
-  event: APIGatewayProxyEvent,
-): Promise<APIGatewayProxyResult> => {
+export const getCustomersHandler = async (): Promise<APIGatewayProxyResult> => {
   try {
     const result = await customerService.listCustomers();
     

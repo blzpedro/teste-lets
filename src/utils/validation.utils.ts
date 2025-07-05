@@ -1,53 +1,68 @@
-import { CreateCustomerRequest, Customer } from '../types';
+import { FieldValidation } from '../types/data.interface';
 import { ValidationError } from './errors.utils';
 
-export function validateCreateCustomer(data: any): CreateCustomerRequest {
-  if (!data || typeof data !== 'object') {
-    throw new ValidationError('Dados de entrada inválidos');
+export function validateData(data: any, fieldsAndValidations: { [key: string]: FieldValidation }) {
+  for (const [key, validation] of Object.entries(fieldsAndValidations)) {
+    if (validation.required && (data[key] === undefined || data[key] === null || data[key] === '')) {
+      throw new ValidationError(`A propriedade ${key} é obrigatória`);
+    }
+    if (validation.type === 'string' && typeof data[key] !== 'string') {
+      throw new ValidationError(`A propriedade ${key} deve ser uma string`);
+    }
+    if (validation.type === 'number' && typeof data[key] !== 'number') {
+      throw new ValidationError(`A propriedade ${key} deve ser um número`);
+    }
+    if (validation.type === 'boolean' && typeof data[key] !== 'boolean') {
+      throw new ValidationError(`A propriedade ${key} deve ser um booleano`);
+    }
+    if (validation.type === 'array' && !Array.isArray(data[key])) {
+      throw new ValidationError(`A propriedade ${key} deve ser um array`);
+    }
+    if (validation.type === 'object' && typeof data[key] !== 'object') {
+      throw new ValidationError(`A propriedade ${key} deve ser um objeto`);
+    }
+    if (validation.minLength && data[key].length < validation.minLength) {
+      throw new ValidationError(`A propriedade ${key} deve ter pelo menos ${validation.minLength} caracteres`);
+    }
+    if (validation.format === 'date' && !isValidDate(data[key])) {
+      throw new ValidationError(`A propriedade ${key} deve ser uma data válida`);
+    }
+    if (validation.enum && !validation.enum.includes(data[key])) {
+      throw new ValidationError(`A propriedade ${key} deve ser um dos valores permitidos: ${validation.enum.join(', ')}`);
+    }
+    if (validation.items) {
+      if (!Array.isArray(data[key])) {
+        throw new ValidationError(`A propriedade ${key} deve ser um array`);
+      }
+      for (const item of data[key]) {
+        validateData(item, validation.items.properties as { [key: string]: FieldValidation });
+      }
+    }
   }
-
-  if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
-    throw new ValidationError('Nome é obrigatório e deve ser uma string não vazia');
-  }
-
-  if (data.birthDate !== undefined && typeof data.birthDate !== 'string') {
-    throw new ValidationError('Data de nascimento deve ser uma string');
-  }
-
-  return {
-    name: data.name.trim(),
-    birthDate: data.birthDate?.trim(),
-    status: data.status,
-    addresses: data.addresses,
-    contacts: data.contacts,
-  };
 }
 
-export function validateUpdateCustomer(data: any): Customer {
-  if (!data || typeof data !== 'object') {
-    throw new ValidationError('Dados de entrada inválidos');
+function isValidDate(date: string): boolean {
+  if (typeof date !== 'string') {
+    return false;
   }
-
-  if (!data.id || typeof data.id !== 'string' || data.id.trim().length === 0) {
-    throw new ValidationError('ID é obrigatório e deve ser uma string não vazia');
+  
+  const regex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+  const match = date.match(regex);
+  
+  if (!match) {
+    return false;
   }
-
-  if (data.name !== undefined && (typeof data.name !== 'string' || data.name.trim().length === 0)) {
-    throw new ValidationError('Nome deve ser uma string não vazia');
+  
+  const day = parseInt(match[1], 10);
+  const month = parseInt(match[2], 10);
+  const year = parseInt(match[3], 10);
+  
+  if (month < 1 || month > 12) {
+    return false;
   }
-
-  if (data.birthDate !== undefined && typeof data.birthDate !== 'string') {
-    throw new ValidationError('Data de nascimento deve ser uma string');
-  }
-
-  return {
-    id: data.id.trim(),
-    name: data.name?.trim(),
-    birthDate: data.birthDate?.trim(),
-    status: data.status,
-    addresses: data.addresses,
-    contacts: data.contacts,
-    createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
-  };
+  
+  const dateObj = new Date(year, month - 1, day);
+  return dateObj.getFullYear() === year && 
+         dateObj.getMonth() === month - 1 && 
+         dateObj.getDate() === day;
 }
