@@ -1,0 +1,30 @@
+{
+  "name": "teste-lets",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "serverless offline",
+    "test:aws": "ts-node src/test-aws.ts",
+    "deploy": "npm run build && serverless deploy",
+    "serverless:remove": "serverless remove"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.133",
+    "serverless": "^3.38.0",
+    "serverless-esbuild": "^1.55.1",
+    "serverless-offline": "^13.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.840.0",
+    "@aws-sdk/credential-providers": "^3.840.0",
+    "@aws-sdk/lib-dynamodb": "^3.840.0",
+    "dotenv": "^17.0.1"
+  }
+}

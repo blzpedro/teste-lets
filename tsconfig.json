@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                     // Boa performance para AWS Lambda
+    "module": "CommonJS",                   // Necessário para Node.js
+    "lib": ["ES2020"],
+    "moduleResolution": "node",             // Resolve imports corretamente
+    "esModuleInterop": true,                // Permite importar módulos CommonJS como ES6
+    "strict": true,                         // Ativa checagens rigorosas
+    "outDir": "dist",                       // Saída da build
+    "baseUrl": ".",                         // Resolve caminhos relativos
+    "rootDir": ".",                         // Raiz dos arquivos de entrada
+    "resolveJsonModule": true,             // Permite importar arquivos JSON
+    "skipLibCheck": true                    // Ignora checagem de tipos em libs
+  },
+  "include": ["src/**/*.ts", "server.ts"],
+  "exclude": ["node_modules", "dist"]
+}
