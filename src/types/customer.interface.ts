@@ -28,6 +28,11 @@ export interface Customer {
   updatedAt: string;
 }
 
+export interface ListCustomersQueryStringParameters {
+  status?: CustomerStatus;
+  name?: string;
+}
+
 export interface CreateCustomerRequest {
   name: string;
   birthDate: string;
@@ -35,6 +40,14 @@ export interface CreateCustomerRequest {
   addresses: Address[];
   contacts: Contact[];
 } 
+
+export interface UpdateCustomerRequest {
+  name?: string;
+  birthDate?: string;
+  status?: CustomerStatus;
+  addresses?: Address[];
+  contacts?: Contact[];
+}
 
 export const customerFieldsAndValidations: { [key: string]: FieldValidation } = {
   name: {

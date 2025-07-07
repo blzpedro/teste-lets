@@ -1,4 +1,4 @@
 export * from './errors.utils';
 export * from './http.utils';
 export * from './validation.utils';
-export * from './lambda.utils';
+export { LambdaResponseBuilder, createLambdaResponse, createSuccessResponse, createErrorResponse, parseLambdaBody } from './lambda.utils';

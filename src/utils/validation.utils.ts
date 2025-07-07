@@ -59,7 +59,7 @@ class DateFormatValidation implements ValidationRule {
   validate(value: any, fieldName: string): void {
     if (value === undefined || value === null) return;
     if (!this.isValidDate(value)) {
-      throw new ValidationError(`A propriedade ${fieldName} deve ser uma data válida`);
+      throw new ValidationError(`A propriedade ${fieldName} deve ser uma data válida. Formato: DD/MM/YYYY`);
     }
   }
 

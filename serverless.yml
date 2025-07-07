@@ -36,7 +36,19 @@ functions:
           path: /api/customers
           method: post
           cors: true
-
+      - http:
+          path: /api/customers/{id}
+          method: delete
+          cors: true
+      - http:
+          path: /api/customers/{id}
+          method: put
+          cors: true
+      - http:
+          path: /api/customers/{id}
+          method: get
+          cors: true
+          
 resources:
   Resources:
     CustomersTable:

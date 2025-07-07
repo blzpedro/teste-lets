@@ -17,9 +17,9 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,PUT,DELETE'
       },
-      body: JSON.stringify({ message: 'Not Found' })
+      body: JSON.stringify({ message: 'Rota não encontrada' })
     };
   } catch (error) {
     console.error('Handler error:', error);
@@ -29,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,PUT,DELETE'
       },
       body: JSON.stringify({ message: 'Internal Server Error' })
     };
