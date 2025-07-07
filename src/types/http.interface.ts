@@ -1,6 +1,4 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
-import { IncomingMessage, ServerResponse } from "http";
-import { URL } from "url";
 
 export interface ApiResponse {
   success: boolean;
