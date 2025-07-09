@@ -240,4 +240,255 @@ describe('Customer Handlers', () => {
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe('Customer ID is required');
   });
+
+  describe('Validation Error Handling', () => {
+    it('should return 400 when creating customer with missing required field', async () => {
+      const invalidCustomerData = {
+        birthDate: '1990-01-01',
+        status: CustomerStatus.ACTIVE,
+        addresses: [],
+        contacts: []
+      };
+
+      mockCustomerService.createCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field name is required',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        body: JSON.stringify(invalidCustomerData)
+      });
+
+      const result = await customerHandlers.createCustomerHandler(event);
+
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field name is required');
+    });
+
+    it('should return 400 when creating customer with invalid type', async () => {
+      const invalidCustomerData = {
+        name: 'John Doe',
+        birthDate: '1990-01-01',
+        status: 'invalid-status',
+        addresses: [],
+        contacts: []
+      };
+
+      mockCustomerService.createCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field status must be one of the allowed values: active, inactive, pending',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        body: JSON.stringify(invalidCustomerData)
+      });
+
+      const result = await customerHandlers.createCustomerHandler(event);
+
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field status must be one of the allowed values: active, inactive, pending');
+    });
+
+    it('should return 400 when creating customer with invalid date format', async () => {
+      const invalidCustomerData = {
+        name: 'John Doe',
+        birthDate: '1990-03-15',
+        status: CustomerStatus.ACTIVE,
+        addresses: [],
+        contacts: []
+      };
+
+      mockCustomerService.createCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field birthDate must be a valid date. Format: DD/MM/YYYY',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        body: JSON.stringify(invalidCustomerData)
+      });
+
+      const result = await customerHandlers.createCustomerHandler(event);
+
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field birthDate must be a valid date. Format: DD/MM/YYYY');
+    });
+
+    it('should return 400 when creating customer with string too short', async () => {
+      const invalidCustomerData = {
+        name: 'Jo',
+        birthDate: '15/03/1990',
+        status: CustomerStatus.ACTIVE,
+        addresses: [],
+        contacts: []
+      };
+
+      mockCustomerService.createCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field name must have at least 3 characters',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        body: JSON.stringify(invalidCustomerData)
+      });
+
+      const result = await customerHandlers.createCustomerHandler(event);
+
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field name must have at least 3 characters');
+    });
+
+    it('should return 400 when updating customer with validation error', async () => {
+      const invalidUpdateData = {
+        name: '',
+        status: CustomerStatus.ACTIVE
+      };
+
+      mockCustomerService.updateCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field name is required',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        pathParameters: { id: 'customer-id' },
+        body: JSON.stringify(invalidUpdateData)
+      });
+
+      const result = await customerHandlers.updateCustomerHandler(event);
+
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field name is required');
+    });
+
+    it('should return 400 when creating customer with invalid array items', async () => {
+      const invalidCustomerData = {
+        name: 'John Doe',
+        birthDate: '15/03/1990',
+        status: CustomerStatus.ACTIVE,
+        addresses: [
+          { street: 'Main St', number: '123' },
+          { street: 'Second St' }
+        ],
+        contacts: []
+      };
+
+      mockCustomerService.createCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field number is required',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        body: JSON.stringify(invalidCustomerData)
+      });
+
+      const result = await customerHandlers.createCustomerHandler(event);
+
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field number is required');
+    });
+
+    it('should verify HTTP status code is exactly 400 for validation errors', async () => {
+      const invalidCustomerData = {
+        name: 'John Doe',
+        birthDate: '1990-03-15',
+        status: CustomerStatus.ACTIVE,
+        addresses: [],
+        contacts: []
+      };
+
+      mockCustomerService.createCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field birthDate must be a valid date. Format: DD/MM/YYYY',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        body: JSON.stringify(invalidCustomerData)
+      });
+
+      const result = await customerHandlers.createCustomerHandler(event);
+
+      expect(result.statusCode).toBe(400);
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field birthDate must be a valid date. Format: DD/MM/YYYY');
+    });
+
+    it('should verify HTTP status code is exactly 400 for update validation errors', async () => {
+      const invalidUpdateData = {
+        name: 'Jo',
+        status: CustomerStatus.ACTIVE
+      };
+
+      mockCustomerService.updateCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field name must have at least 3 characters',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        pathParameters: { id: 'customer-id' },
+        body: JSON.stringify(invalidUpdateData)
+      });
+
+      const result = await customerHandlers.updateCustomerHandler(event);
+
+      expect(result.statusCode).toBe(400);
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field name must have at least 3 characters');
+    });
+
+    it('should verify HTTP status code is not 500 for validation errors', async () => {
+      const invalidCustomerData = {
+        name: 'John Doe',
+        status: 'invalid-status',
+        addresses: [],
+        contacts: []
+      };
+
+      mockCustomerService.createCustomer.mockResolvedValue({
+        success: false,
+        error: 'The field status must be one of the allowed values: active, inactive, pending',
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST
+      });
+
+      const event = createMockEvent({
+        body: JSON.stringify(invalidCustomerData)
+      });
+
+      const result = await customerHandlers.createCustomerHandler(event);
+
+      expect(result.statusCode).not.toBe(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
+      expect(result.statusCode).not.toBe(500);
+      
+      expect(result.statusCode).toBe(HTTP_STATUS_CODES.BAD_REQUEST);
+      expect(result.statusCode).toBe(400);
+      
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.success).toBe(false);
+      expect(responseBody.error).toBe('The field status must be one of the allowed values: active, inactive, pending');
+    });
+  });
 });

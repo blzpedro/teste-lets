@@ -34,10 +34,10 @@ export class CustomerService {
 
       return { success: true, data: customer, statusCode: HTTP_STATUS_CODES.CREATED };
     } catch (error) {
-      if (error instanceof ValidationError) {
-        return { success: false, error: error.message, statusCode: HTTP_STATUS_CODES.BAD_REQUEST };
+      if (error instanceof ValidationError || (error instanceof Error && error.name === 'ValidationError')) {
+        return { success: false, error: error instanceof Error ? error.message : 'Validation error', statusCode: HTTP_STATUS_CODES.BAD_REQUEST };
       }
-      throw error; 
+      return { success: false, error: error instanceof Error ? error.message : 'Error creating customer', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
     }
   }
 
@@ -129,6 +129,9 @@ export class CustomerService {
       await dynamoClient.send(command);
       return { success: true, data: customerData as Customer, statusCode: HTTP_STATUS_CODES.OK }; 
     } catch (error) {
+      if (error instanceof ValidationError || (error instanceof Error && error.name === 'ValidationError')) {
+        return { success: false, error: error instanceof Error ? error.message : 'Validation error', statusCode: HTTP_STATUS_CODES.BAD_REQUEST };
+      }
       return { success: false, error: error instanceof Error ? error.message : 'Error updating customer', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
     }
   }
