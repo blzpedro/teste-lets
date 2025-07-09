@@ -8,7 +8,7 @@ interface ValidationRule {
 class RequiredValidation implements ValidationRule {
   validate(value: any, fieldName: string): void {
     if (value === undefined || value === null || value === '') {
-      throw new ValidationError(`A propriedade ${fieldName} é obrigatória`);
+      throw new ValidationError(`The field ${fieldName} is required`);
     }
   }
 }
@@ -22,24 +22,24 @@ class TypeValidation implements ValidationRule {
     let isValid = false;
     switch (this.expectedType) {
       case Type.string:
-        isValid = typeof value === 'string';
+        isValid = typeof value === Type.string;
         break;
       case Type.number:
-        isValid = typeof value === 'number';
+        isValid = typeof value === Type.number;
         break;
       case Type.boolean:
-        isValid = typeof value === 'boolean';
+        isValid = typeof value === Type.boolean;
         break;
       case Type.array:
         isValid = Array.isArray(value);
         break;
       case Type.object:
-        isValid = typeof value === 'object' && !Array.isArray(value);
+        isValid = typeof value === Type.object && !Array.isArray(value);
         break;
     }
 
     if (!isValid) {
-      throw new ValidationError(`A propriedade ${fieldName} deve ser um ${this.expectedType}`);
+      throw new ValidationError(`The field ${fieldName} must be a ${this.expectedType}`);
     }
   }
 }
@@ -50,7 +50,7 @@ class MinLengthValidation implements ValidationRule {
   validate(value: any, fieldName: string): void {
     if (value === undefined || value === null) return;
     if (value.length < this.minLength) {
-      throw new ValidationError(`A propriedade ${fieldName} deve ter pelo menos ${this.minLength} caracteres`);
+      throw new ValidationError(`The field ${fieldName} must have at least ${this.minLength} characters`);
     }
   }
 }
@@ -59,7 +59,7 @@ class DateFormatValidation implements ValidationRule {
   validate(value: any, fieldName: string): void {
     if (value === undefined || value === null) return;
     if (!this.isValidDate(value)) {
-      throw new ValidationError(`A propriedade ${fieldName} deve ser uma data válida. Formato: DD/MM/YYYY`);
+      throw new ValidationError(`The field ${fieldName} must be a valid date. Format: DD/MM/YYYY`);
     }
   }
 
@@ -96,7 +96,7 @@ class EnumValidation implements ValidationRule {
   validate(value: any, fieldName: string): void {
     if (value === undefined || value === null) return;
     if (!this.allowedValues.includes(value)) {
-      throw new ValidationError(`A propriedade ${fieldName} deve ser um dos valores permitidos: ${this.allowedValues.join(', ')}`);
+      throw new ValidationError(`The field ${fieldName} must be one of the allowed values: ${this.allowedValues.join(', ')}`);
     }
   }
 }
@@ -107,7 +107,7 @@ class ArrayItemsValidation implements ValidationRule {
   validate(value: any, fieldName: string): void {
     if (value === undefined || value === null) return;
     if (!Array.isArray(value)) {
-      throw new ValidationError(`A propriedade ${fieldName} deve ser um array`);
+      throw new ValidationError(`The field ${fieldName} must be an array`);
     }
     
     for (const item of value) {

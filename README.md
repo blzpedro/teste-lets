@@ -46,9 +46,28 @@ npm run serverless:remove
 
 - `GET /health` - Health check
 - `GET /api/customers` - Listar todos os clientes
+- `GET /api/customers?status` - Listar todos os clientes por status
+- `GET /api/customers?name` - Listar todos os clientes por nome
 - `POST /api/customers` - Criar novo cliente
+- `DELETE /api/customers/{id}` - Deletar cliente
+- `PUT /api/customers/{id}` - Atualizar um cliente
+- `GET /api/customers/{id}` - Get de cliente especifico
 
-## Variáveis de Ambiente
+## Configuração AWS
+
+Configure suas credenciais AWS:
+
+#### AWS CLI
+```bash
+aws configure
+```
+Digite suas credenciais quando solicitado:
+- AWS Access Key ID
+- AWS Secret Access Key
+- Default region name
+- Default output format
+
+### Variáveis de Ambiente
 
 Crie um arquivo `.env` baseado no `env.example`:
 

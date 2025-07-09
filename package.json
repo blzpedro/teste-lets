@@ -5,6 +5,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "serverless offline",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "test:aws": "ts-node src/test-aws.ts",
     "deploy": "npm run build && serverless deploy",
     "serverless:remove": "serverless remove"
@@ -15,9 +18,12 @@
   "description": "",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.133",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.4",
     "serverless": "^3.38.0",
     "serverless-esbuild": "^1.55.1",
     "serverless-offline": "^13.3.3",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },

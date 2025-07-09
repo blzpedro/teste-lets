@@ -67,7 +67,7 @@ export class CustomerService {
       const result = await dynamoClient.send(command);
       return { success: true, data: result.Items as Customer[], statusCode: HTTP_STATUS_CODES.OK };
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Erro ao listar clientes', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
+      return { success: false, error: error instanceof Error ? error.message : 'Error listing customers', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
     }
   }
 
@@ -78,7 +78,6 @@ export class CustomerService {
         Key: { id: customerId },
       });
       const existingCustomer = await dynamoClient.send(getCommand);
-      console.log(` CustomerService ~ deleteCustomer ~ existingCustomer:`, existingCustomer)
       
       if (!existingCustomer.Item) {
         return { success: false, error: 'Customer not found', statusCode: HTTP_STATUS_CODES.NOT_FOUND };
@@ -91,7 +90,7 @@ export class CustomerService {
       await dynamoClient.send(command);
       return { success: true, statusCode: HTTP_STATUS_CODES.NO_CONTENT };
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Erro ao deletar cliente', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
+      return { success: false, error: error instanceof Error ? error.message : 'Error deleting customer', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
     }
   }
 
@@ -130,7 +129,7 @@ export class CustomerService {
       await dynamoClient.send(command);
       return { success: true, data: customerData as Customer, statusCode: HTTP_STATUS_CODES.OK }; 
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Erro ao atualizar cliente', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
+      return { success: false, error: error instanceof Error ? error.message : 'Error updating customer', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
     }
   }
 
@@ -147,7 +146,7 @@ export class CustomerService {
 
       return { success: true, data: result.Item as Customer, statusCode: HTTP_STATUS_CODES.OK };
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Erro ao buscar cliente por id', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
+      return { success: false, error: error instanceof Error ? error.message : 'Error getting customer by id', statusCode: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR };
     }
   } 
 } 
