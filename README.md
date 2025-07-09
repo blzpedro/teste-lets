@@ -42,7 +42,7 @@ npm run serverless:deploy
 npm run serverless:remove
 ```
 
-## Endpoints da API
+### API Endpoints
 
 - `GET /health` - Health check
 - `GET /api/customers` - Listar todos os clientes
@@ -52,6 +52,16 @@ npm run serverless:remove
 - `DELETE /api/customers/{id}` - Deletar cliente
 - `PUT /api/customers/{id}` - Atualizar um cliente
 - `GET /api/customers/{id}` - Get de cliente especifico
+
+## API Documentation
+
+### Swagger UI
+Iniciar swagger:
+```bash
+npm run docs
+```
+
+Entre em: http://localhost:8080/swagger-ui.html
 
 ## Configuração AWS
 

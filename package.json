@@ -10,7 +10,8 @@
     "test:coverage": "jest --coverage",
     "test:aws": "ts-node src/test-aws.ts",
     "deploy": "npm run build && serverless deploy",
-    "serverless:remove": "serverless remove"
+    "serverless:remove": "serverless remove",
+    "docs": "node serve-docs.js"
   },
   "keywords": [],
   "author": "",

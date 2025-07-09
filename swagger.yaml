@@ -1,0 +1,607 @@
+openapi: 3.0.3
+info:
+  title: Customer API
+  description: A RESTful API for managing customer data with DynamoDB backend
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://vgkxx7mt9j.execute-api.us-east-1.amazonaws.com/dev/
+    description: Development server
+  - url: http://localhost:3000/dev/
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the API service
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                data:
+                  timestamp: "2024-01-15T10:30:00.000Z"
+                  service: "Customer API"
+                  status: "healthy"
+                message: "Server is running"
+                statusCode: 200
+
+  /api/customers:
+    get:
+      summary: List all customers
+      description: Retrieve a list of customers with optional filtering
+      tags:
+        - Customers
+      parameters:
+        - name: status
+          in: query
+          description: Filter customers by status
+          required: false
+          schema:
+            $ref: '#/components/schemas/CustomerStatus'
+        - name: name
+          in: query
+          description: Filter customers by name (partial match)
+          required: false
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: List of customers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListResponse'
+              example:
+                data:
+                  customers:
+                    - id: "cust_123"
+                      name: "John Doe"
+                      birthDate: "1990-05-15"
+                      status: "active"
+                      addresses:
+                        - street: "123 Main St"
+                          number: "Apt 4B"
+                          complement: "Building A"
+                      contacts:
+                        - email: "john.doe@email.com"
+                          phone: "+1-555-0123"
+                          favorite: true
+                      createdAt: "2024-01-10T08:00:00.000Z"
+                      updatedAt: "2024-01-15T14:30:00.000Z"
+                  total: 1
+                message: "Customers retrieved successfully"
+                statusCode: 200
+        '400':
+          description: Bad request - invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Create a new customer
+      description: Create a new customer with the provided information
+      tags:
+        - Customers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+            example:
+              name: "Jane Smith"
+              birthDate: "1985-08-22"
+              status: "active"
+              addresses:
+                - street: "456 Oak Avenue"
+                  number: "Suite 100"
+                  complement: "Floor 2"
+              contacts:
+                - email: "jane.smith@email.com"
+                  phone: "+1-555-0456"
+                  favorite: true
+                - email: "jane.work@company.com"
+                  phone: "+1-555-0789"
+                  favorite: false
+      responses:
+        '201':
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+              example:
+                data:
+                  id: "cust_456"
+                  name: "Jane Smith"
+                  birthDate: "1985-08-22"
+                  status: "active"
+                  addresses:
+                    - street: "456 Oak Avenue"
+                      number: "Suite 100"
+                      complement: "Floor 2"
+                  contacts:
+                    - email: "jane.smith@email.com"
+                      phone: "+1-555-0456"
+                      favorite: true
+                    - email: "jane.work@company.com"
+                      phone: "+1-555-0789"
+                      favorite: false
+                  createdAt: "2024-01-15T15:45:00.000Z"
+                  updatedAt: "2024-01-15T15:45:00.000Z"
+                message: "Customer created successfully"
+                statusCode: 201
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Validation failed"
+                message: "Name is required and must be at least 3 characters long"
+                statusCode: 400
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/customers/{id}:
+    get:
+      summary: Get customer by ID
+      description: Retrieve a specific customer by their unique identifier
+      tags:
+        - Customers
+      parameters:
+        - name: id
+          in: path
+          description: Customer unique identifier
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9_-]+$'
+          example: "cust_123"
+      responses:
+        '200':
+          description: Customer retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Not Found"
+                message: "Customer with id 'cust_999' not found"
+                statusCode: 404
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update customer
+      description: Update an existing customer's information
+      tags:
+        - Customers
+      parameters:
+        - name: id
+          in: path
+          description: Customer unique identifier
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9_-]+$'
+          example: "cust_123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomerRequest'
+            example:
+              name: "John Doe Updated"
+              status: "inactive"
+              addresses:
+                - street: "789 Pine Street"
+                  number: "Unit 5"
+                  complement: "Garden View"
+      responses:
+        '200':
+          description: Customer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete customer
+      description: Delete a customer by their unique identifier
+      tags:
+        - Customers
+      parameters:
+        - name: id
+          in: path
+          description: Customer unique identifier
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9_-]+$'
+          example: "cust_123"
+      responses:
+        '200':
+          description: Customer deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+              example:
+                data:
+                  id: "cust_123"
+                message: "Customer deleted successfully"
+                statusCode: 200
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CustomerStatus:
+      type: string
+      enum: [active, inactive]
+      description: Customer status enumeration
+      example: "active"
+
+    Address:
+      type: object
+      required:
+        - street
+        - number
+      properties:
+        street:
+          type: string
+          description: Street address
+          example: "123 Main Street"
+        number:
+          type: string
+          description: House/building number or unit
+          example: "Apt 4B"
+        complement:
+          type: string
+          description: Additional address information
+          example: "Building A, Floor 2"
+      additionalProperties: false
+
+    Contact:
+      type: object
+      required:
+        - email
+        - phone
+        - favorite
+      properties:
+        email:
+          type: string
+          format: email
+          description: Contact email address
+          example: "john.doe@email.com"
+        phone:
+          type: string
+          description: Contact phone number
+          example: "+1-555-0123"
+        favorite:
+          type: boolean
+          description: Whether this is the preferred contact method
+          example: true
+      additionalProperties: false
+
+    Customer:
+      type: object
+      required:
+        - id
+        - name
+        - birthDate
+        - status
+        - addresses
+        - contacts
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: Unique customer identifier
+          example: "cust_123"
+        name:
+          type: string
+          minLength: 3
+          description: Customer's full name
+          example: "John Doe"
+        birthDate:
+          type: string
+          format: date
+          description: Customer's date of birth (YYYY-MM-DD)
+          example: "1990-05-15"
+        status:
+          $ref: '#/components/schemas/CustomerStatus'
+        addresses:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Address'
+        contacts:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Contact'
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-10T08:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-15T14:30:00.000Z"
+      additionalProperties: false
+
+    CreateCustomerRequest:
+      type: object
+      required:
+        - name
+        - birthDate
+        - status
+        - addresses
+        - contacts
+      properties:
+        name:
+          type: string
+          minLength: 3
+          description: Customer's full name
+          example: "Jane Smith"
+        birthDate:
+          type: string
+          format: date
+          description: Customer's date of birth (YYYY-MM-DD)
+          example: "1985-08-22"
+        status:
+          $ref: '#/components/schemas/CustomerStatus'
+        addresses:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Address'
+        contacts:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Contact'
+      additionalProperties: false
+
+    UpdateCustomerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          description: Customer's full name
+          example: "Jane Smith Updated"
+        birthDate:
+          type: string
+          format: date
+          description: Customer's date of birth (YYYY-MM-DD)
+          example: "1985-08-22"
+        status:
+          $ref: '#/components/schemas/CustomerStatus'
+        addresses:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Address'
+        contacts:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Contact'
+      additionalProperties: false
+
+    HealthResponse:
+      type: object
+      required:
+        - data
+        - message
+        - statusCode
+      properties:
+        data:
+          type: object
+          required:
+            - timestamp
+            - service
+            - status
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+              description: Current server timestamp
+              example: "2024-01-15T10:30:00.000Z"
+            service:
+              type: string
+              description: Service name
+              example: "Customer API"
+            status:
+              type: string
+              description: Health status
+              example: "healthy"
+        message:
+          type: string
+          description: Response message
+          example: "Server is running"
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+
+    CustomerResponse:
+      type: object
+      required:
+        - data
+        - message
+        - statusCode
+      properties:
+        data:
+          $ref: '#/components/schemas/Customer'
+        message:
+          type: string
+          description: Response message
+          example: "Customer retrieved successfully"
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+
+    CustomerListResponse:
+      type: object
+      required:
+        - data
+        - message
+        - statusCode
+      properties:
+        data:
+          type: object
+          required:
+            - customers
+            - total
+          properties:
+            customers:
+              type: array
+              items:
+                $ref: '#/components/schemas/Customer'
+            total:
+              type: integer
+              description: Total number of customers
+              example: 1
+        message:
+          type: string
+          description: Response message
+          example: "Customers retrieved successfully"
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+
+    DeleteResponse:
+      type: object
+      required:
+        - data
+        - message
+        - statusCode
+      properties:
+        data:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: ID of the deleted customer
+              example: "cust_123"
+        message:
+          type: string
+          description: Response message
+          example: "Customer deleted successfully"
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - statusCode
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "Validation Error"
+        message:
+          type: string
+          description: Detailed error message
+          example: "Name is required and must be at least 3 characters long"
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 400
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+tags:
+  - name: Health
+    description: Health check operations
+  - name: Customers
+    description: Customer management operations
+
+externalDocs:
+  description: Find more info about this API
+  url: https://github.com/your-username/teste-lets 
